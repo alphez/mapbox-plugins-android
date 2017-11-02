@@ -28,6 +28,7 @@ android {
         javaMaxHeapSize "2g"
         preDexLibraries true
     }
+    buildToolsVersion '26.0.2'
 }
 
 dependencies {

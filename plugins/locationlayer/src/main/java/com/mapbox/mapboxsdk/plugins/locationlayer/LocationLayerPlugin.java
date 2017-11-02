@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.plugins.locationlayer;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
@@ -15,6 +16,9 @@ import android.support.v7.app.AppCompatDelegate;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.style.layers.Layer;
@@ -66,6 +70,9 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
   // Enabled booleans
   @LocationLayerMode.Mode
   private int locationLayerMode;
+
+  @LocationLayerCameraMode.CameraMode
+  private int cameraMode;
 
   // Previous compass and location values
   private float previousMagneticHeading;
@@ -163,6 +170,31 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
       }
     }
     this.locationLayerMode = locationLayerMode;
+  }
+
+
+  /**
+   *
+   * Set the camera mode of this plugin, enabling either a locked or free state.
+   * <p>
+   * <ul>
+   * <li>{@link LocationLayerCameraMode#NONE}: No actions are taken to control the camera</li>
+   * <li>{@link LocationLayerCameraMode#LOCKED}: Locks the camera on top of the user location</li>
+   * </ul>
+   * @param cameraMode
+   */
+  public void setCameraMode(@LocationLayerCameraMode.CameraMode int cameraMode) {
+    this.cameraMode = cameraMode;
+  }
+
+
+  /**
+   * Get the current camera mode.
+   *
+   * @return one of the {@link LocationLayerCameraMode} values
+   */
+  public int getCameraMode() {
+    return cameraMode;
   }
 
   /**
@@ -543,10 +575,30 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
       locationChangeAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
     locationChangeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @SuppressLint("MissingPermission")
       @Override
       public void onAnimationUpdate(ValueAnimator animation) {
         previousPoint = (Point) animation.getAnimatedValue();
         locationGeoJsonSource.setGeoJson(previousPoint);
+
+        if (cameraMode == LocationLayerCameraMode.LOCKED
+          || cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
+
+          LatLng latLng = new LatLng(previousPoint.getCoordinates().getLatitude(), previousPoint.getCoordinates().getLongitude());
+          double bearing = 0;
+
+          Location location = locationEngine.getLastLocation();
+          if (location != null) {
+            bearing = location.getBearing();
+          }
+          CameraPosition newPos
+            = new CameraPosition.Builder()
+                  .target(latLng)
+                  .bearing(cameraMode == LocationLayerCameraMode.LOCKED_BEARING ? previousMagneticHeading : 0)
+                  .build();
+
+          mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(newPos));
+        }
       }
     });
     locationChangeAnimator.start();
