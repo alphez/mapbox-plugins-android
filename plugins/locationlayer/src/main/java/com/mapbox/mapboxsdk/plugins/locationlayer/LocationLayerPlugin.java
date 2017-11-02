@@ -583,16 +583,9 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
 
         if (cameraMode == LocationLayerCameraMode.LOCKED
           || cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
-
           LatLng latLng = new LatLng(previousPoint.getCoordinates().getLatitude(), previousPoint.getCoordinates().getLongitude());
-          double bearing = 0;
 
-          Location location = locationEngine.getLastLocation();
-          if (location != null) {
-            bearing = location.getBearing();
-          }
-          CameraPosition newPos
-            = new CameraPosition.Builder()
+          CameraPosition newPos = new CameraPosition.Builder()
                   .target(latLng)
                   .bearing(cameraMode == LocationLayerCameraMode.LOCKED_BEARING ? previousMagneticHeading : 0)
                   .build();
