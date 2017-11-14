@@ -45,7 +45,7 @@ import timber.log.Timber;
  * to display an arrow icon (by default) that points in the direction the device is pointing in.
  * {@link LocationLayerMode#NAVIGATION} can be used in conjunction with our Navigation SDK to display a larger icon we
  * call the user puck. Lastly, {@link LocationLayerMode#NONE} can be used to disable the Location Layer but keep the
- * instance around till the activity is destroyed.
+ * instance around till the activity is canAnimate.
  * <p>
  * Using this plugin requires you to request permission beforehand manually or using
  * {@link com.mapbox.services.android.telemetry.permissions.PermissionsManager}. Either {@code ACCESS_COARSE_LOCATION}
@@ -84,6 +84,7 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
 
   private long locationUpdateTimestamp;
   private boolean linearAnimation;
+  private boolean canAnimate = true;
 
   /**
    * Construct a {@code LocationLayerPlugin}
@@ -183,8 +184,13 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
    * </ul>
    * @param cameraMode
    */
+  @RequiresPermission(anyOf = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
   public void setCameraMode(@LocationLayerCameraMode.CameraMode int cameraMode) {
     this.cameraMode = cameraMode;
+    if (this.cameraMode == LocationLayerCameraMode.LOCKED
+      || this.cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
+      setLocation(locationEngine.getLastLocation());
+    }
   }
 
 
@@ -281,7 +287,12 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
     if (locationEngine != null) {
       locationEngine.removeLocationEngineListener(this);
     }
+  }
 
+
+  @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+  public void onDestroy() {
+    canAnimate = false;
   }
 
   /**
@@ -565,7 +576,7 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
    * Handles the animation from currentSourcePoint to the new user location point.
    */
   private void locationChangeAnimate(@NonNull final GeoJsonSource locationGeoJsonSource,
-                                     @NonNull Point currentSourcePoint, @NonNull Point newPoint) {
+                                     @NonNull Point currentSourcePoint, @NonNull final Point newPoint) {
     if (locationChangeAnimator != null) {
       locationChangeAnimator.end();
     }
@@ -585,8 +596,10 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
         previousPoint = (Point) animation.getAnimatedValue();
         locationGeoJsonSource.setGeoJson(previousPoint);
 
-        if (cameraMode == LocationLayerCameraMode.LOCKED
-          || cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
+
+        if (canAnimate && (cameraMode == LocationLayerCameraMode.LOCKED
+          || cameraMode == LocationLayerCameraMode.LOCKED_BEARING)) {
+
           LatLng latLng = new LatLng(previousPoint.getCoordinates().getLatitude(), previousPoint.getCoordinates().getLongitude());
 
           CameraPosition newPos = new CameraPosition.Builder()
@@ -594,7 +607,9 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
                   .bearing(cameraMode == LocationLayerCameraMode.LOCKED_BEARING ? previousMagneticHeading : 0)
                   .build();
 
-          mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(newPos));
+
+          //mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(newPos));
+          mapboxMap.setCameraPosition(newPos);
         }
       }
     });
