@@ -188,7 +188,7 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
   public void setCameraMode(@LocationLayerCameraMode.CameraMode int cameraMode) {
     this.cameraMode = cameraMode;
     if (this.cameraMode == LocationLayerCameraMode.LOCKED
-      || this.cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
+            || this.cameraMode == LocationLayerCameraMode.LOCKED_BEARING) {
       setLocation(locationEngine.getLastLocation());
     }
   }
@@ -596,7 +596,6 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
         previousPoint = (Point) animation.getAnimatedValue();
         locationGeoJsonSource.setGeoJson(previousPoint);
 
-
         if (canAnimate && (cameraMode == LocationLayerCameraMode.LOCKED
           || cameraMode == LocationLayerCameraMode.LOCKED_BEARING)) {
 
@@ -607,8 +606,6 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
                   .bearing(cameraMode == LocationLayerCameraMode.LOCKED_BEARING ? previousMagneticHeading : 0)
                   .build();
 
-
-          //mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(newPos));
           mapboxMap.setCameraPosition(newPos);
         }
       }
