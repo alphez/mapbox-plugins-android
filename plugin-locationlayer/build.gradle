@@ -9,6 +9,7 @@ android {
     targetSdkVersion androidVersions.targetSdkVersion
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
+    versionName = '0.3.0'
   }
 
   configurations {

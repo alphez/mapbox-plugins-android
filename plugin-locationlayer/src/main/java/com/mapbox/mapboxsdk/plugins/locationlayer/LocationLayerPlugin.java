@@ -448,7 +448,7 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
       locationLayer.setLayerVisibility(locationLayerMode != LocationLayerMode.NONE);
     }
     GeoJsonSource locationGeoJsonSource = mapboxMap.getSourceAs(LocationLayerConstants.LOCATION_SOURCE);
-    if (locationGeoJsonSource != null) {
+    if (locationGeoJsonSource != null && previousPoint != null) {
       locationGeoJsonSource.setGeoJson(previousPoint);
     }
   }
