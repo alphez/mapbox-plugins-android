@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.alphez'
 
 android {
   compileSdkVersion androidVersions.compileSdkVersion
@@ -28,8 +31,6 @@ dependencies {
 
   javadocDeps dependenciesList.mapboxMapSdk
 }
-apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.alphez'
 
 apply from: 'javadoc.gradle'
 apply from: "${rootDir}/gradle/mvn-push-android.gradle"
