@@ -606,7 +606,7 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
                   .bearing(cameraMode == LocationLayerCameraMode.LOCKED_BEARING ? previousMagneticHeading : 0)
                   .build();
 
-          mapboxMap.setCameraPosition(newPos);
+          mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(newPos));
         }
       }
     });
