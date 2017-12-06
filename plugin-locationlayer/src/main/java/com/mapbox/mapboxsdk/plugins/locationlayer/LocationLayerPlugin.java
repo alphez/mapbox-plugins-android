@@ -308,8 +308,8 @@ public class LocationLayerPlugin implements LocationEngineListener, CompassListe
       setLocationLayerEnabled(locationLayerMode);
     }
 
-    if (compassManager.getCompassListeners().size() > 0
-      || locationLayerMode == LocationLayerMode.COMPASS && compassManager.isSensorAvailable()) {
+    if ((compassManager.getCompassListeners().size() > 0
+      || locationLayerMode == LocationLayerMode.COMPASS) && compassManager.isSensorAvailable()) {
       compassManager.onStart();
     }
   }
