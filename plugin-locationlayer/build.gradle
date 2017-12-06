@@ -12,7 +12,6 @@ android {
     targetSdkVersion androidVersions.targetSdkVersion
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
-    versionName = '0.3.0'
   }
 
   configurations {
@@ -36,3 +35,27 @@ apply from: 'javadoc.gradle'
 apply from: "${rootDir}/gradle/mvn-push-android.gradle"
 apply from: "${rootDir}/gradle/checkstyle.gradle"
 apply from: "${rootDir}/gradle/jacoco.gradle"
+
+// build a jar with source files
+task sourcesJar(type: Jar) {
+  from android.sourceSets.main.java.srcDirs
+  classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+  failOnError  false
+  source = android.sourceSets.main.java.sourceFiles
+  classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+  classpath += configurations.compile
+}
+
+// build a jar with javadoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
+}
+
+artifacts {
+  archives sourcesJar
+  archives javadocJar
+}
