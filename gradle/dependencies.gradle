@@ -27,7 +27,7 @@ ext {
       spoonRunner        : '1.6.2',
       commonsIO          : '2.5',
       robolectric        : '3.4.2',
-      lifecycleCompiler  : '1.0.0',
+      lifecycleCompiler  : '1.0.3',
       lifecycleRuntime   : '1.0.3',
       okhttp             : '3.9.0'
   ]
@@ -40,7 +40,7 @@ ext {
       coveralls : '2.8.1',
       spotbugs  : '1.3',
       sonarqube : '2.6',
-      gradle    : '3.0.0'
+      gradle    : '3.0.1'
   ]
 
   dependenciesList = [
@@ -68,7 +68,7 @@ ext {
       supportConstraintLayout: "com.android.support.constraint:constraint-layout:${version.constraintLayout}",
 
       // architecture
-      lifecycleExtensions    : "android.arch.lifecycle:extensions:${version.lifecycleRuntime}",
+      lifecycleExtensions    : "android.arch.lifecycle:runtime:${version.lifecycleRuntime}",
       lifecycleCompiler      : "android.arch.lifecycle:compiler:${version.lifecycleCompiler}",
 
       // square crew
